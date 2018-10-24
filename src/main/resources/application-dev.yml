@@ -20,7 +20,8 @@ server:
         enabled: false
 logging:
     config: classpath:logback-spring.xml
-    path: /home/jcala/xmarket/log/spring_log
+    path: d:/log/xmarket/spring_log
+logging.level.org.springframework.data.mongodb.core: DEBUG
 spring:
     http:
         encoding.charset: UTF-8
