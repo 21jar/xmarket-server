@@ -3,8 +3,6 @@ package me.jcala.xmarket.server.conf;
 import lombok.extern.slf4j.Slf4j;
 import me.jcala.xmarket.server.annotation.SwaggerIgnore;
 import me.jcala.xmarket.server.entity.configuration.ApplicationInfo;
-import me.jcala.xmarket.server.interceptor.TokenInterceptor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,17 +10,21 @@ import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.ParameterBuilder;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.schema.ModelRef;
 import springfox.documentation.service.ApiKey;
 import springfox.documentation.service.Contact;
+import springfox.documentation.service.Parameter;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static com.google.common.base.Predicates.not;
 import static com.google.common.base.Predicates.or;
@@ -53,6 +55,13 @@ public class RestConfig extends WebMvcConfigurerAdapter {
     @SuppressWarnings("unchecked")
     @Bean
     public Docket ordinaryApi() {
+        //添加head参数start
+        ParameterBuilder tokenPar = new ParameterBuilder();
+        List<Parameter> pars = new ArrayList<Parameter>();
+        tokenPar.name("x-access-token").description("令牌").modelRef(new ModelRef("string")).parameterType("header").required(false).build();
+        pars.add(tokenPar.build());
+        //添加head参数end
+
         return new Docket(DocumentationType.SWAGGER_2)
                 .groupName("ordinary-api")
                 .genericModelSubstitutes(DeferredResult.class)
@@ -64,6 +73,7 @@ public class RestConfig extends WebMvcConfigurerAdapter {
                 .apis(not(withClassAnnotation(SwaggerIgnore.class)))
                 .apis(RequestHandlerSelectors.basePackage("me.jcala.xmarket.server.ctrl"))
                 .build()
+                .globalOperationParameters(pars)
                 .apiInfo(infoBuilder().description("普通用户的api后端").build());
     }
 
